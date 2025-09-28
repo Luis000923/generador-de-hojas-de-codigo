@@ -1,9 +1,5 @@
 import pandas as pd
 import numpy as np
-from docx import Document
-from docx.shared import Inches, Pt
-from docx.enum.text import WD_ALIGN_PARAGRAPH
-from docx.enum.table import WD_TABLE_ALIGNMENT
 import tkinter as tk
 from tkinter import filedialog, messagebox, ttk, scrolledtext
 import os
@@ -104,75 +100,6 @@ class SurveyProcessor:
             }
         
         return statistics
-    
-    def generate_word_document(self, output_path, institution_info=None):
-        """Genera el documento Word con todos los resultados"""
-        doc = Document()
-        
-        # Encabezado
-        if institution_info:
-            for line in institution_info:
-                p = doc.add_paragraph(line)
-                p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-        
-        doc.add_paragraph()
-        
-        # Título principal
-        title = doc.add_heading('Análisis de Encuesta', 0)
-        title.alignment = WD_ALIGN_PARAGRAPH.CENTER
-        
-        # Información de la muestra
-        doc.add_heading('Información General', 1)
-        doc.add_paragraph(f'Muestra = {self.sample_size}')
-        doc.add_paragraph()
-        
-        # Preguntas y alternativas con códigos
-        doc.add_heading('Preguntas y Alternativas con Códigos', 1)
-        for q_num, q_title in self.questions.items():
-            doc.add_paragraph(f'{q_num}: {q_title}', style='List Number')
-            alternatives = self.alternatives[q_num]
-            for i, alt in enumerate(alternatives, 1):
-                doc.add_paragraph(f'    {i}) {alt}')
-            doc.add_paragraph()
-        
-        # Cuadros estadísticos (omitimos la hoja de código en Word)
-        doc.add_page_break()
-        doc.add_heading('Cuadros Estadísticos', 1)
-        
-        statistics = self.calculate_statistics()
-        
-        for i, (q_num, stats) in enumerate(statistics.items(), 1):
-            doc.add_heading(f'CUADRO #{i}', 2)
-            doc.add_paragraph(stats['title'])
-            doc.add_paragraph(f'N={self.sample_size}')
-            
-            # Crear tabla
-            table = doc.add_table(rows=1, cols=3)
-            table.style = 'Table Grid'
-            
-            # Encabezados
-            headers = ['Alternativas', 'FA', '%']
-            for j, header in enumerate(headers):
-                table.cell(0, j).text = header
-            
-            # Datos
-            for data_row in stats['data']:
-                row = table.add_row()
-                row.cells[0].text = str(data_row['Alternativa'])
-                row.cells[1].text = str(data_row['FA'])
-                row.cells[2].text = str(data_row['%'])
-            
-            # Fila de total
-            row = table.add_row()
-            row.cells[0].text = 'Total='
-            row.cells[1].text = str(stats['total'])
-            row.cells[2].text = '100.0%'
-            
-            doc.add_paragraph()
-        
-        # Guardar documento
-        doc.save(output_path)
-        return True
     
     def generate_excel_document(self, output_path, max_respondents=None):
         """Genera un archivo Excel con la hoja de código.
@@ -297,7 +224,7 @@ class SurveyProcessor:
 class SurveyApp:
     def __init__(self, root):
         self.root = root
-        self.root.title("Procesador de Encuestas - Excel a Word")
+        self.root.title("Generador de Hojas de Código")
         self.root.geometry("800x600")
         
         self.processor = SurveyProcessor()
@@ -317,7 +244,7 @@ class SurveyApp:
         main_frame.columnconfigure(0, weight=1)
 
         # Título
-        title_label = ttk.Label(main_frame, text="Procesador de Encuestas", font=('Arial', 16, 'bold'))
+        title_label = ttk.Label(main_frame, text="Generador de Hojas de Código", font=('Arial', 16, 'bold'))
         title_label.grid(row=0, column=0, columnspan=3, pady=10)
 
         # Frame de carga de archivo
@@ -333,7 +260,7 @@ class SurveyApp:
         ttk.Label(info_frame, text="Institución:").grid(row=0, column=0, sticky=tk.W)
         self.institution_entry = ttk.Entry(info_frame, width=50)
         self.institution_entry.grid(row=0, column=1, padx=5)
-        self.institution_entry.insert(0, "Instituto Católico San Francisco De Asís")
+        self.institution_entry.insert(0, "")
         ttk.Label(info_frame, text="Asignatura:").grid(row=1, column=0, sticky=tk.W)
         self.subject_entry = ttk.Entry(info_frame, width=50)
         self.subject_entry.grid(row=1, column=1, padx=5)
@@ -361,10 +288,9 @@ class SurveyApp:
         # Frame de botones de acción
         action_frame = ttk.Frame(main_frame)
         action_frame.grid(row=5, column=0, columnspan=3, pady=10)
-        ttk.Button(action_frame, text="Generar Documento Word", command=self.generate_document).grid(row=0, column=0, padx=5)
-        ttk.Button(action_frame, text="Generar Excel", command=self.generate_excel).grid(row=0, column=1, padx=5)
-        ttk.Button(action_frame, text="Ver Estadísticas", command=self.show_statistics).grid(row=0, column=2, padx=5)
-        ttk.Button(action_frame, text="Limpiar", command=self.clear_all).grid(row=0, column=3, padx=5)
+        ttk.Button(action_frame, text="Generar Excel", command=self.generate_excel).grid(row=0, column=0, padx=5)
+        ttk.Button(action_frame, text="Ver Estadísticas", command=self.show_statistics).grid(row=0, column=1, padx=5)
+        ttk.Button(action_frame, text="Limpiar", command=self.clear_all).grid(row=0, column=2, padx=5)
 
         # Barra de estado
         self.status_bar = ttk.Label(main_frame, text="Listo", relief=tk.SUNKEN)
@@ -443,41 +369,6 @@ class SurveyApp:
         
         stats_text.insert(1.0, stats_display)
         stats_text.config(state=tk.DISABLED)
-    
-    def generate_document(self):
-        """Genera el documento Word"""
-        if self.processor.data is None:
-            messagebox.showwarning("Advertencia", "Primero debe cargar un archivo Excel")
-            return
-        
-        # Solicitar ubicación para guardar
-        output_path = filedialog.asksaveasfilename(
-            defaultextension=".docx",
-            filetypes=[("Word Document", "*.docx"), ("All files", "*.*")],
-            initialfile=f"Análisis_Encuesta_{datetime.now().strftime('%Y%m%d_%H%M%S')}.docx"
-        )
-        
-        if output_path:
-            # Preparar información de la institución
-            institution_info = []
-            if self.institution_entry.get():
-                institution_info.append(self.institution_entry.get())
-            if self.subject_entry.get():
-                institution_info.append(f"Asignatura: {self.subject_entry.get()}")
-            if self.teacher_entry.get():
-                institution_info.append(f"Docente: {self.teacher_entry.get()}")
-            
-            # Generar documento
-            try:
-                self.processor.generate_word_document(output_path, institution_info)
-                self.status_bar.config(text=f"Documento generado: {os.path.basename(output_path)}")
-                messagebox.showinfo("Éxito", f"Documento generado exitosamente:\n{output_path}")
-                
-                # Preguntar si desea abrir el documento
-                if messagebox.askyesno("Abrir documento", "¿Desea abrir el documento generado?"):
-                    os.startfile(output_path)
-            except Exception as e:
-                messagebox.showerror("Error", f"Error al generar el documento: {str(e)}")
     
     def generate_excel(self):
         """Genera el archivo Excel con hoja de código y tablas"""
