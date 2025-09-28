@@ -1,4 +1,14 @@
-# Generador de Hojas de Código
+# Ge## 📸 Capturas de Pantalla
+
+### Interfaz Principal de la Aplicación
+![Interfaz Principal](ejemplos/interfaz.png)
+
+*La aplicación cuenta con una interfaz gráfica intuitiva que permite cargar archivos Excel, previsualizar datos y generar hojas de código.*
+
+### Manejo y Vista Previa de Datos
+![Manejo de Datos](ejemplos/manejo%20de%20datos%20.png)
+
+*Vista previa de los datos cargados mostrando las preguntas detectadas automáticamente y sus alternativas.*r de Hojas de Código
 
 Una herramienta desarrollada en Python para generar hojas de código automáticas a partir de datos de encuestas en Excel.
 
@@ -84,11 +94,12 @@ python hoja_de_codigos.py
 ## 📖 Guía Visual Paso a Paso
 
 ### Paso 1: Cargar Archivo Excel
-![Interfaz Principal](ejemplos/image.png)
+![Interfaz Principal](ejemplos/interfaz.png)
 - Haz clic en **"Seleccionar Excel"** para cargar tu archivo de encuesta
 - La aplicación detectará automáticamente las preguntas y alternativas
 
 ### Paso 2: Verificar Vista Previa
+![Manejo de Datos](ejemplos/manejo%20de%20datos%20.png)
 - Revisa en la sección **"Vista Previa de Datos"** que las preguntas se hayan detectado correctamente
 - Verifica que las alternativas de respuesta estén completas
 
@@ -114,14 +125,15 @@ python hoja_de_codigos.py
 ├── ejemplo.xlsx                                         # 📊 Archivo de ejemplo (datos de prueba)
 ├── Impacto de la alimentación encuesta (respuestas).xlsx # 📊 Ejemplo de encuesta real
 └── ejemplos/                                            # 📁 Carpeta con recursos
-    └── image.png                                        # 🖼️ Captura de pantalla de la app
+    ├── interfaz.png                                     # 🖼️ Captura de la interfaz principal
+    └── manejo de datos .png                             # 🖼️ Captura del manejo de datos
 ```
 
 ### 📝 Descripción de Archivos
 - **`hoja_de_codigos.py`**: Script principal con toda la lógica de la aplicación
 - **`requirements.txt`**: Lista de todas las dependencias necesarias con versiones específicas
 - **`ejemplo.xlsx`**: Archivo de muestra para probar la funcionalidad
-- **`ejemplos/`**: Contiene recursos adicionales como imágenes y documentación visual
+- **`ejemplos/`**: Contiene capturas de pantalla actuales de la interfaz de usuario
 
 ## 🔧 Funcionalidades Principales
 
